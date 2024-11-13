@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { TextField, Button, Box } from "@mui/material";
+import { v4 as uuidv4 } from "uuid";
 
 interface Task {
-  id: number;
+  id: string;
   text: string;
   completed: boolean;
 }
@@ -14,19 +15,22 @@ interface TaskFormProps {
 const TaskForm: React.FC<TaskFormProps> = ({ addTask }) => {
   const [taskText, setTaskText] = useState<string>("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!taskText.trim()) return;
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!taskText.trim()) return;
 
-    const newTask: Task = {
-      id: Date.now(),
-      text: taskText,
-      completed: false,
-    };
+      const newTask: Task = {
+        id: uuidv4(),
+        text: taskText,
+        completed: false,
+      };
 
-    addTask(newTask);
-    setTaskText("");
-  };
+      addTask(newTask);
+      setTaskText("");
+    },
+    [taskText, addTask]
+  );
 
   return (
     <Box
