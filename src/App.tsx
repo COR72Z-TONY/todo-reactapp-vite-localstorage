@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { getData, saveData } from "./localStorageUtils";
+import { getData, saveData, deleteData } from "./localStorageUtils";
 import TaskForm from "./TaskForm";
 import TaskList from "./TaskList";
-import { Container, Typography, Box } from "@mui/material";
+import { Container, Typography, Box, Button } from "@mui/material";
 
 interface Task {
   id: number;
@@ -31,7 +31,9 @@ const App: React.FC = () => {
   };
 
   const deleteTask = (taskId: number) => {
-    setTasks(tasks.filter((task) => task.id !== taskId));
+    const updatedTasks = tasks.filter((task) => task.id !== taskId);
+    setTasks(updatedTasks);
+    saveData("tasks", updatedTasks);
   };
 
   const toggleTaskCompletion = (taskId: number) => {
@@ -39,6 +41,12 @@ const App: React.FC = () => {
       task.id === taskId ? { ...task, completed: !task.completed } : task
     );
     setTasks(updatedTasks);
+    saveData("tasks", updatedTasks);
+  };
+
+  const clearAllTasks = () => {
+    deleteData("tasks"); // Удаляем все данные из localStorage
+    setTasks([]); // Очищаем состояние
   };
 
   return (
@@ -48,11 +56,32 @@ const App: React.FC = () => {
           To-Do List
         </Typography>
         <TaskForm addTask={addTask} />
-        <TaskList
-          tasks={tasks}
-          deleteTask={deleteTask}
-          toggleTaskCompletion={toggleTaskCompletion}
-        />
+        {tasks.length > 0 ? (
+          <>
+            <TaskList
+              tasks={tasks}
+              deleteTask={deleteTask}
+              toggleTaskCompletion={toggleTaskCompletion}
+            />
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={clearAllTasks}
+              sx={{ mt: 2 }}
+            >
+              Clear All Tasks
+            </Button>
+          </>
+        ) : (
+          <Typography
+            variant="overline"
+            gutterBottom
+            fontFamily="monospace"
+            sx={{ mt: 5 }}
+          >
+            There are no tasks yet
+          </Typography>
+        )}
       </Box>
     </Container>
   );
